@@ -37,4 +37,4 @@ for i in range(len(sentences)):
 for i in range(len(sentences)):
     current_col = col_list[i]
     output = colored(sentences[i], current_col)
-    print(output, end="")
+    print(output, end= '\n' if i+1 == len(sentences) else '')
