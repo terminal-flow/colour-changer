@@ -24,7 +24,7 @@ source [environment name]/bin/activate
 * Click the download button
 * Unzip the project file
 
-### Go to the project root
+### Change directory the project root
 ```
 cd path/to/colour-changer
 ```
