@@ -86,7 +86,26 @@ def clear():
     inpt_txt.delete('1.0', END)
     output_txt.delete('1.0', END)
 
+#menu functions
+def r_menu_inpt_func(event):
+    r_menu_inpt.tk_popup(event.x_root, event.y_root)
 
+def r_menu_output_func(event):
+    r_menu_output.tk_popup(event.x_root, event.y_root)
+
+def cut():
+    output_txt.event_generate('<<Cut>>')
+
+def copy(): #needs works!
+    output_txt.event_generate('<<Copy>>')
+
+def paste():
+    output_txt.event_generate('<<Paste>>')
+
+def select_all():
+    output_txt.event_generate('<<SelectAll>>')
+
+#input
 inpt_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')
 inpt_txt.pack(fill= 'both', expand= 'yes', pady= '10', padx= '10')
 
@@ -94,6 +113,7 @@ y_scrollbar_inpt = Scrollbar(inpt_txt, command= inpt_txt.yview)
 y_scrollbar_inpt.pack(side= RIGHT, fill= 'y')
 inpt_txt.config(yscrollcommand= y_scrollbar_inpt.set)
 
+#buttons
 button_frame = Frame(root, bd= '0')
 
 generate_button = Button(button_frame, text= 'Generate', height= '2', padx= '5', command= get_txt)
@@ -107,11 +127,31 @@ clear_button.pack(side= LEFT, padx= '10')
 
 button_frame.pack(pady= '10')
 
+#output
 output_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')#, state= 'disabled')
 output_txt.pack(fill= 'both', expand= 'yes', pady= '10', padx= '10')
 
 y_scrollbar_output = Scrollbar(output_txt, command= output_txt.yview)
 y_scrollbar_output.pack(side= RIGHT, fill= 'y')
 output_txt.config(yscrollcommand= y_scrollbar_output.set)
+
+#right click menu input
+r_menu_inpt = Menu(inpt_txt, tearoff= '0', fg= 'black')
+r_menu_inpt.add_command(label= 'Cut', command= cut)
+r_menu_inpt.add_command(label= 'Copy', command= copy)
+r_menu_inpt.add_command(label= 'Paste', command= paste)
+r_menu_inpt.add_separator()
+r_menu_inpt.add_command(label= 'Select All', command= select_all)
+
+inpt_txt.bind('<Button-2>', r_menu_inpt_func)
+
+#right click menu output
+r_menu_output = Menu(output_txt, tearoff= '0', fg= 'black')
+r_menu_output.add_command(label= 'Cut', command= cut)
+r_menu_output.add_command(label= 'Copy', command= copy)
+r_menu_output.add_separator()
+r_menu_output.add_command(label= 'Select All', command= select_all)
+
+output_txt.bind('<Button-2>', r_menu_output_func)
 
 root.mainloop()
