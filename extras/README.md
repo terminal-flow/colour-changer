@@ -1,5 +1,5 @@
 # Python Colour Changer
-## Colour Changer
+## Colour Changer CLI
 ---
 This extra program is a CLI sentence colour changer that aids in reading large sections of text, without losing track of where you are reading.
 
