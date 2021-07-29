@@ -82,22 +82,36 @@ def get_sentences(text):
 
     return sentences, col_list
 
+def clear():
+    inpt_txt.delete('1.0', END)
+    output_txt.delete('1.0', END)
+
 
 inpt_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')
 inpt_txt.pack(fill= 'both', expand= 'yes', pady= '10', padx= '10')
 
 y_scrollbar_inpt = Scrollbar(inpt_txt, command= inpt_txt.yview)
-y_scrollbar_inpt.pack(side= RIGHT, fill= 'y', pady= '10')
+y_scrollbar_inpt.pack(side= RIGHT, fill= 'y')
 inpt_txt.config(yscrollcommand= y_scrollbar_inpt.set)
 
-inpt_button = Button(root, text= 'Generate', height= '2', padx= '5', command= get_txt)
-inpt_button.pack(pady= '10')
+button_frame = Frame(root, bd= '0')
+
+generate_button = Button(button_frame, text= 'Generate', height= '2', padx= '5', command= get_txt)
+generate_button.pack(side= LEFT, padx= '10')
+
+copy_button = Button(button_frame, text= 'Copy', height= '2', padx= '5', command= None)
+copy_button.pack(side= LEFT, padx= '10')
+
+clear_button = Button(button_frame, text= 'Clear', height= '2', padx= '5', command= clear)
+clear_button.pack(side= LEFT, padx= '10')
+
+button_frame.pack(pady= '10')
 
 output_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')#, state= 'disabled')
 output_txt.pack(fill= 'both', expand= 'yes', pady= '10', padx= '10')
 
 y_scrollbar_output = Scrollbar(output_txt, command= output_txt.yview)
-y_scrollbar_output.pack(side= RIGHT, fill= 'y', pady= '10')
+y_scrollbar_output.pack(side= RIGHT, fill= 'y')
 output_txt.config(yscrollcommand= y_scrollbar_output.set)
 
 root.mainloop()
