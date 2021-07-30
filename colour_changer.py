@@ -119,11 +119,9 @@ def copy(text_type): #needs work!
         output_txt.event_generate('<<Copy>>')
     select_none(text_type)
 
-def paste(text_type):
-    if text_type == 'inpt':
-        inpt_txt.event_generate('<<Paste>>')
-    else:
-        output_txt.event_generate('<<Paste>>')
+def paste():
+    inpt_txt.event_generate('<<Paste>>')
+    inpt_txt.delete('end-1c', END)
 
 #input
 inpt_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')
@@ -159,7 +157,7 @@ output_txt.config(yscrollcommand= y_scrollbar_output.set)
 r_menu_inpt = Menu(inpt_txt, tearoff= '0', fg= 'black')
 r_menu_inpt.add_command(label= 'Cut', command= lambda: cut('inpt'))
 r_menu_inpt.add_command(label= 'Copy', command= lambda: copy('inpt'))
-r_menu_inpt.add_command(label= 'Paste', command= lambda: paste('inpt'))
+r_menu_inpt.add_command(label= 'Paste', command= paste)
 r_menu_inpt.add_separator()
 r_menu_inpt.add_command(label= 'Select All', command= lambda: select_all('inpt'))
 r_menu_inpt.add_command(label= 'Deselect All', command= lambda: select_none('inpt'))
