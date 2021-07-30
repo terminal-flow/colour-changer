@@ -93,17 +93,37 @@ def r_menu_inpt_func(event):
 def r_menu_output_func(event):
     r_menu_output.tk_popup(event.x_root, event.y_root)
 
-def cut():
-    output_txt.event_generate('<<Cut>>')
+def select_all(text_type):
+    if text_type == 'inpt':
+        inpt_txt.event_generate('<<SelectAll>>')
+    else:
+        output_txt.event_generate('<<SelectAll>>')
 
-def copy(): #needs works!
-    output_txt.event_generate('<<Copy>>')
+def select_none(text_type):
+    if text_type == 'inpt':
+        inpt_txt.event_generate('<<SelectNone>>')
+    else:
+        output_txt.event_generate('<<SelectNone>>')
 
-def paste():
-    output_txt.event_generate('<<Paste>>')
+def cut(text_type):
+    if text_type == 'inpt':
+        inpt_txt.event_generate('<<Cut>>')
+    else:
+        output_txt.event_generate('<<Cut>>')
 
-def select_all():
-    output_txt.event_generate('<<SelectAll>>')
+def copy(text_type): #needs work!
+    select_all(text_type)
+    if text_type == 'inpt':
+        inpt_txt.event_generate('<<Copy>>')
+    else:
+        output_txt.event_generate('<<Copy>>')
+    select_none(text_type)
+
+def paste(text_type):
+    if text_type == 'inpt':
+        inpt_txt.event_generate('<<Paste>>')
+    else:
+        output_txt.event_generate('<<Paste>>')
 
 #input
 inpt_txt = Text(root, bg= '#e6e6e6', bd= '5', wrap= 'word', spacing2= '1', highlightcolor= 'white', selectbackground= '#E1F2FF')
@@ -119,7 +139,7 @@ button_frame = Frame(root, bd= '0')
 generate_button = Button(button_frame, text= 'Generate', height= '2', padx= '5', command= get_txt)
 generate_button.pack(side= LEFT, padx= '10')
 
-copy_button = Button(button_frame, text= 'Copy', height= '2', padx= '5', command= None)
+copy_button = Button(button_frame, text= 'Copy', height= '2', padx= '5', command= lambda: copy('output'))
 copy_button.pack(side= LEFT, padx= '10')
 
 clear_button = Button(button_frame, text= 'Clear', height= '2', padx= '5', command= clear)
@@ -137,20 +157,22 @@ output_txt.config(yscrollcommand= y_scrollbar_output.set)
 
 #right click menu input
 r_menu_inpt = Menu(inpt_txt, tearoff= '0', fg= 'black')
-r_menu_inpt.add_command(label= 'Cut', command= cut)
-r_menu_inpt.add_command(label= 'Copy', command= copy)
-r_menu_inpt.add_command(label= 'Paste', command= paste)
+r_menu_inpt.add_command(label= 'Cut', command= lambda: cut('inpt'))
+r_menu_inpt.add_command(label= 'Copy', command= lambda: copy('inpt'))
+r_menu_inpt.add_command(label= 'Paste', command= lambda: paste('inpt'))
 r_menu_inpt.add_separator()
-r_menu_inpt.add_command(label= 'Select All', command= select_all)
+r_menu_inpt.add_command(label= 'Select All', command= lambda: select_all('inpt'))
+r_menu_inpt.add_command(label= 'Deselect All', command= lambda: select_none('inpt'))
 
 inpt_txt.bind('<Button-2>', r_menu_inpt_func)
 
 #right click menu output
 r_menu_output = Menu(output_txt, tearoff= '0', fg= 'black')
-r_menu_output.add_command(label= 'Cut', command= cut)
-r_menu_output.add_command(label= 'Copy', command= copy)
+r_menu_output.add_command(label= 'Cut', command= lambda: cut('output'))
+r_menu_output.add_command(label= 'Copy', command= lambda: copy('output'))
 r_menu_output.add_separator()
-r_menu_output.add_command(label= 'Select All', command= select_all)
+r_menu_output.add_command(label= 'Select All', command= lambda: select_all('output'))
+r_menu_output.add_command(label= 'Deselect All', command= lambda: select_none('output'))
 
 output_txt.bind('<Button-2>', r_menu_output_func)
 
