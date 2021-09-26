@@ -5,8 +5,7 @@ This program is a sentence colour changer that aids in reading large sections of
 
 ### Dependencies
 * webcolors
-* klembord
-* richxerox
+* richxerox (MacOS only)
 
 ---
 ## Installation via GitHub
