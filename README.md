@@ -1,7 +1,7 @@
 # Python Colour Changer
 ## Colour Changer
 ---
-This program is a sentence colour changer that aids in reading large sections of text, without losing track of where you are reading.
+This program is a sentence colour changer thatt aids in reading large sections of text, without losing track of where you are reading, by outputting and copying coloured text to the clipboard.
 
 ### Dependencies
 * webcolors
