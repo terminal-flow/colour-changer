@@ -1,2 +1,2 @@
 webcolors
-termcolor
+richxerox; sys_platform == "Darwin"

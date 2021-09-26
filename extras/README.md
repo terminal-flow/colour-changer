@@ -1,11 +1,11 @@
 # Python Colour Changer
-## Colour Changer
+## Colour Changer CLI
 ---
-This program is a sentence colour changer that aids in reading large sections of text, without losing track of where you are reading.
+This extra program is a CLI sentence colour changer that aids in reading large sections of text, without losing track of where you are reading.
 
 ### Dependencies
 * webcolors
-* richxerox (MacOS only)
+* termcolor
 
 ---
 ## Installation via GitHub
@@ -36,7 +36,10 @@ pip3 install -r requirements.txt
 
 ### Run
 ```
-python3 colour_changer.py
+cd extras
+```
+```
+python3 colour_changer_cli.py
 ```
 
 ---
