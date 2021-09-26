@@ -31,13 +31,13 @@ cd path/to/colour-changer
 
 ### Install requirements
 ```
+cd extras
+```
+```
 pip3 install -r requirements.txt
 ```
 
 ### Run
-```
-cd extras
-```
 ```
 python3 colour_changer_cli.py
 ```
