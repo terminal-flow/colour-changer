@@ -1,6 +1,8 @@
 from tkinter import *
 import random
 from webcolors import rgb_to_name
+import sys
+import platform
 
 #get current screen w + h
 def get_curr_screen_geometry():
@@ -31,35 +33,41 @@ default_geom, min_width, min_height = get_curr_screen_geometry()
 root.minsize(width= min_width, height= min_height)
 root.geometry(default_geom)
 
+#global storage vars
+sentence_list_store = None
+col_list_store = None
+
 #functions
-def get_txt():
+def generate():
     txt_get = inpt_txt.get('1.0', 'end-1c')
 
-    sentences, col_list = get_sentences(txt_get)
+    sentence_list, col_list = get_lists(txt_get)
     index_list = ['1.0']
-    #output_txt.config(state= 'normal')
     output_txt.delete('1.0', END)
-    for i in range(len(sentences)):
+    #loop through sentences and add colour tag per sentence
+    for i in range(len(sentence_list)):
         current_col = col_list[i]
-        output_txt.insert(END, sentences[i])
+        output_txt.insert(END, sentence_list[i])
         #add index position of end of sentence
         index_list.append(output_txt.index('end-1c'))
 
         output_txt.tag_add(f'{current_col} {i}', index_list[0], index_list[1])
         output_txt.tag_config(f'{current_col} {i}', foreground= current_col)
+        #delete used index
         del index_list[0]
-    #output_txt.config(state= 'disabled')
 
 #get random rgb colour
 def random_colour(previous_col= None):
-    colours = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]
+    colours = [(255, 0, 0), (50, 205, 50), (0, 0, 255), (255, 215, 0)]
     colour = random.choice(colours)
     #remove duplicate colours
     while colour == previous_col:
         colour = random.choice(colours)
     return colour
 
-def get_sentences(text):
+def get_lists(text):
+    global sentence_list_store
+    global col_list_store
     #mark sentence position
     indices = [0]
     for i in range(len(text)):
@@ -67,12 +75,12 @@ def get_sentences(text):
             indices.append(i+1)
 
     #get list of sentences
-    sentences = [text[i:j] for i,j in zip(indices, indices[1:]+[None])]
+    sentence_list = [text[i:j] for i,j in zip(indices, indices[1:]+[None])]
 
     #get english colour list
     recent = None
     col_list = []
-    for i in range(len(sentences)):
+    for i in range(len(sentence_list)):
         rgb = random_colour(recent)
         rgb_name = rgb_to_name(rgb)
         if rgb_name == 'lime':
@@ -80,7 +88,18 @@ def get_sentences(text):
         col_list.append(rgb_name)
         recent = rgb
 
-    return sentences, col_list
+    sentence_list_store = sentence_list
+    col_list_store = col_list
+    return sentence_list, col_list
+
+#translate colour to rtf var
+def translate_colour_rtf(col_list_to_translate):
+    rtf_col_dic = {'red':'cf1', 'limegreen':'cf2', 'blue':'cf3', 'gold':'cf4'}
+    col_list_rtf = []
+    for i in range(len(col_list_to_translate)):
+        col_list_rtf.insert(i, rtf_col_dic[col_list_to_translate[i]])
+
+    return col_list_rtf
 
 def clear():
     inpt_txt.delete('1.0', END)
@@ -89,9 +108,6 @@ def clear():
 #menu functions
 def r_menu_inpt_func(event):
     r_menu_inpt.tk_popup(event.x_root, event.y_root)
-
-def r_menu_output_func(event):
-    r_menu_output.tk_popup(event.x_root, event.y_root)
 
 def select_all(text_type):
     if text_type == 'inpt':
@@ -105,18 +121,77 @@ def select_none(text_type):
     else:
         output_txt.event_generate('<<SelectNone>>')
 
-def cut(text_type):
-    if text_type == 'inpt':
-        inpt_txt.event_generate('<<Cut>>')
-    else:
-        output_txt.event_generate('<<Cut>>')
+def cut():
+    inpt_txt.event_generate('<<Cut>>')
 
-def copy(text_type): #needs work!
+def copy(text_type):
     select_all(text_type)
     if text_type == 'inpt':
         inpt_txt.event_generate('<<Copy>>')
     else:
-        output_txt.event_generate('<<Copy>>')
+        #translate current col_list to rtf
+        if sentence_list_store == None and col_list_store == None:
+            txt_get = output_txt.get('1.0', 'end-1c')
+            sentence_list, col_list = get_lists(txt_get)
+            #translate colour name to rtf var
+            col_list_rtf = translate_colour_rtf(col_list)
+        else:
+            #translate colour name to rtf var
+            col_list_rtf = translate_colour_rtf(col_list_store)
+
+            #create local sentence list
+            sentence_list = sentence_list_store
+
+        #merge each sentences with col_list_rtf
+        semi_merge_list = []
+        for i in range(len(sentence_list)):
+            #restrict to one space
+            if sentence_list[i].startswith(' '):
+                semi_merge_list.insert(i, f'\\{col_list_rtf[i]}{sentence_list[i]}')
+            else:
+                semi_merge_list.insert(i, f'\\{col_list_rtf[i]} {sentence_list[i]}')
+
+        #copy text as rtf
+        #MacOS
+        if platform.system() == 'Darwin':
+            from richxerox import pasteboard
+
+            r = ("{\\rtf1\\ansi\\ansicpg1252\\cocoartf2580\n" \
+                "\\cocoatextscaling0\\cocoaplatform0{\\fonttbl{\\f0\\fswiss Helvetica;}}\n" \
+                "{\\colortbl;\\red255\\green0\\blue0;\\red50\\green205\\blue50;\\red0\\green0\\blue255;\\red255\\green215\\blue0;}\n" \
+                "\n\\f0\\fs30" + ' '.join(semi_merge_list) + "}")
+
+            pasteboard.set_contents(text= ''.join(sentence_list), rtf= r)
+        #Windows
+        elif platform.system() == 'Windows':
+            import win32clipboard
+
+            cf_rtf = win32clipboard.RegisterClipboardFormat('Rich Text Format')
+
+            r = ("{\\rtf1\\ansi\\deff0\n" \
+                "{\\fonttbl{\\f0\\fswiss Helvetica;}}\n" \
+                "{\\colortbl;\\red255\\green0\\blue0;\\red50\\green205\\blue50;\\red0\\green0\\blue255;\\red255\\green215\\blue0;}\n" \
+                "\n\\f0\\fs30" + ' '.join(semi_merge_list) + "}")
+
+            r = bytearray(r, 'utf-8')
+
+            win32clipboard.OpenClipboard(0)
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardData(cf_rtf, r)
+            win32clipboard.CloseClipboard()
+        #Linux
+        elif platform.system() == 'Linux':
+            import subprocess
+
+            r = ("{\\rtf1\\ansi\\deff0\n" \
+                "{\\fonttbl{\\f0\\fswiss Helvetica;}}\n" \
+                "{\\colortbl;\\red255\\green0\\blue0;\\red50\\green205\\blue50;\\red0\\green0\\blue255;\\red255\\green215\\blue0;}\n" \
+                "\n\\f0\\fs30" + ' '.join(semi_merge_list) + "}")
+
+            if str(type(r)) == "<class 'str'>":
+                r = bytearray(r, 'utf-8')
+            subprocess.Popen(['xclip', '-selection', 'clipboard', '-t', 'text/rtf'], stdin= subprocess.PIPE).communicate(r)
+
     select_none(text_type)
 
 def paste():
@@ -134,7 +209,7 @@ inpt_txt.config(yscrollcommand= y_scrollbar_inpt.set)
 #buttons
 button_frame = Frame(root, bd= '0')
 
-generate_button = Button(button_frame, text= 'Generate', height= '2', padx= '5', command= get_txt)
+generate_button = Button(button_frame, text= 'Generate', height= '2', padx= '5', command= generate)
 generate_button.pack(side= LEFT, padx= '10')
 
 copy_button = Button(button_frame, text= 'Copy', height= '2', padx= '5', command= lambda: copy('output'))
@@ -155,7 +230,7 @@ output_txt.config(yscrollcommand= y_scrollbar_output.set)
 
 #right click menu input
 r_menu_inpt = Menu(inpt_txt, tearoff= '0', fg= 'black')
-r_menu_inpt.add_command(label= 'Cut', command= lambda: cut('inpt'))
+r_menu_inpt.add_command(label= 'Cut', command= cut)
 r_menu_inpt.add_command(label= 'Copy', command= lambda: copy('inpt'))
 r_menu_inpt.add_command(label= 'Paste', command= paste)
 r_menu_inpt.add_separator()
@@ -163,15 +238,5 @@ r_menu_inpt.add_command(label= 'Select All', command= lambda: select_all('inpt')
 r_menu_inpt.add_command(label= 'Deselect All', command= lambda: select_none('inpt'))
 
 inpt_txt.bind('<Button-2>', r_menu_inpt_func)
-
-#right click menu output
-r_menu_output = Menu(output_txt, tearoff= '0', fg= 'black')
-r_menu_output.add_command(label= 'Cut', command= lambda: cut('output'))
-r_menu_output.add_command(label= 'Copy', command= lambda: copy('output'))
-r_menu_output.add_separator()
-r_menu_output.add_command(label= 'Select All', command= lambda: select_all('output'))
-r_menu_output.add_command(label= 'Deselect All', command= lambda: select_none('output'))
-
-output_txt.bind('<Button-2>', r_menu_output_func)
 
 root.mainloop()
