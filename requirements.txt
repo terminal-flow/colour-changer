@@ -1,3 +1,2 @@
 webcolors
-klembord
-richxerox
+richxerox; sys_platform == "Darwin"
